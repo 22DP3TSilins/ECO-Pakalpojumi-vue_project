@@ -4,16 +4,24 @@
     <h2>{{ name }}</h2>
     <p class="price">{{ price }}</p>
     <p class="description">{{ description }}</p>
-    <button class="buy-button" @click="buyProduct">Buy Now</button>
+    <div class="button-container">
+      <button class="buy-button" @click="addToCart">Buy Now</button>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   props: ['name', 'price', 'image', 'description'],
+  emits: ['add-to-cart'],
   methods: {
-    buyProduct() {
-      alert(`You selected: ${this.name}`);
+    addToCart() {
+      this.$emit('add-to-cart', {
+        name: this.name,
+        price: this.price,
+        image: this.image,
+        quantity: 1
+      });
     }
   }
 };
@@ -28,6 +36,10 @@ export default {
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .product-card:hover {
@@ -40,11 +52,6 @@ export default {
   height: auto;
   border-radius: 8px;
   margin-bottom: 1rem;
-  transition: transform 0.3s ease;
-}
-
-.product-card:hover .product-image {
-  transform: scale(1.1);
 }
 
 h2 {
@@ -62,6 +69,11 @@ h2 {
   font-size: 0.9rem;
   color: #555;
   margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.button-container {
+  margin-top: auto;
 }
 
 .buy-button {
@@ -73,6 +85,7 @@ h2 {
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
 }
 
 .buy-button:hover {

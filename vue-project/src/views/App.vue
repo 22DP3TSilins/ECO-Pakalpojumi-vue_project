@@ -1,12 +1,14 @@
 <template>
   <div id="app">
     <Navbar :cartItems="cart.length" />
-    <router-view 
-      :cart="cart" 
-      @add-to-cart="addToCart" 
-      @remove-from-cart="removeFromCart" 
-      @clear-cart="clearCart" 
-    />
+    <transition name="fade" mode="out-in">
+      <router-view 
+        :cart="cart" 
+        @add-to-cart="addToCart" 
+        @remove-from-cart="removeFromCart" 
+        @clear-cart="clearCart" 
+      />
+    </transition>
   </div>
 </template>
 
@@ -19,26 +21,20 @@ export default {
   setup() {
     const cart = ref([]);
 
-    // 🛒 Load cart from local storage when the app starts
+    // Load cart from local storage when the app starts
     onMounted(() => {
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
-        try {
-          cart.value = JSON.parse(savedCart);
-        } catch (error) {
-          console.error("Error parsing cart data:", error);
-          cart.value = [];
-        }
+        cart.value = JSON.parse(savedCart);
       }
     });
 
-    // 💾 Save cart to local storage whenever it changes
+    // Watch for cart changes and store them
     watch(cart, (newCart) => {
       localStorage.setItem('cart', JSON.stringify(newCart));
     }, { deep: true });
 
     const addToCart = (product) => {
-      // Check if product already exists in cart
       const existingProduct = cart.value.find(item => item.name === product.name);
       if (existingProduct) {
         existingProduct.quantity += 1;
@@ -60,3 +56,14 @@ export default {
   }
 };
 </script>
+
+<style>
+/* Fade Transition */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>

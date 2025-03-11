@@ -4,13 +4,15 @@ import Products from '../views/Products.vue';
 import Cart from '../views/Cart.vue';
 import Checkout from '../views/Checkout.vue';
 import OrderConfirmation from '../views/OrderConfirmation.vue';
+import OrderHistory from '../views/OrderHistory.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/products', name: 'Products', component: Products },
   { path: '/cart', name: 'Cart', component: Cart },
   { path: '/checkout', name: 'Checkout', component: Checkout },
-  { path: '/order-confirmation', name: 'OrderConfirmation', component: OrderConfirmation }
+  { path: '/order-confirmation', name: 'OrderConfirmation', component: OrderConfirmation },
+  { path: '/order-history', component: OrderHistory }
 ];
 
 const router = createRouter({

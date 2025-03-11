@@ -1,92 +1,97 @@
 <template>
-    <section class="confirmation">
-      <h1>🎉 Order Confirmed!</h1>
-      <p>Thank you, <strong>{{ name }}</strong>! Your order has been placed successfully.</p>
-      <p>A confirmation email has been sent to <strong>{{ email }}</strong>.</p>
-      <p>Your order will be shipped to:</p>
-      <p class="address">{{ address }}</p>
-  
-      <div v-if="emailSent" class="email-message">
-        ✅ Email sent successfully! (Simulated)
+  <section class="order-confirmation">
+    <h1>Order Confirmed! 🎉</h1>
+
+    <p>Thank you for your purchase, <strong>{{ orderDetails.name }}</strong>!</p>
+    <p>Your order has been successfully placed and a confirmation email has been sent to <strong>{{ orderDetails.email }}</strong>.</p>
+
+    <div class="order-summary" v-if="orderDetails.items.length > 0">
+      <h2>Order Summary</h2>
+      <div v-for="(item, index) in orderDetails.items" :key="index" class="order-item">
+        <img :src="item.image" :alt="item.name" class="order-image" />
+        <div class="order-details">
+          <h3>{{ item.name }}</h3>
+          <p>Quantity: {{ item.quantity }}</p>
+          <p class="price">{{ formatPrice(item.price * item.quantity) }}</p>
+        </div>
       </div>
-  
-      <router-link to="/" class="home-button">🏠 Back to Home</router-link>
-    </section>
-  </template>
-  
-  <script>
-  import { onMounted, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  
-  export default {
-    setup() {
-      const router = useRouter();
-      const name = ref('');
-      const email = ref('');
-      const address = ref('');
-      const emailSent = ref(false);
-  
-      // Load order details from local storage
-      onMounted(() => {
-        const orderData = JSON.parse(localStorage.getItem('orderDetails'));
-        if (orderData) {
-          name.value = orderData.name;
-          email.value = orderData.email;
-          address.value = orderData.address;
-          localStorage.removeItem('orderDetails'); // Clear after use
-  
-          // Simulate sending an email (console log & success message)
-          setTimeout(() => {
-            console.log(`📧 Simulated email sent to ${email.value} with order details.`);
-            emailSent.value = true;
-          }, 2000);
-        } else {
-          router.push('/'); // Redirect if no order data
-        }
-      });
-  
-      return { name, email, address, emailSent };
-    }
-  };
-  </script>
-  
-  <style scoped>
-  .confirmation {
-    text-align: center;
-    padding: 2rem;
+      <h2>Total Paid: {{ formatPrice(orderDetails.total) }}</h2>
+    </div>
+
+    <router-link to="/" class="home-button">Back to Home</router-link>
+  </section>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue';
+
+export default {
+  setup() {
+    const orderDetails = ref({
+      name: '',
+      email: '',
+      address: '',
+      total: 0,
+      items: []
+    });
+
+    onMounted(() => {
+      const savedOrder = localStorage.getItem('orderDetails');
+      if (savedOrder) {
+        orderDetails.value = JSON.parse(savedOrder);
+      }
+    });
+
+    const formatPrice = (price) => `$${parseFloat(price).toFixed(2)}`;
+
+    return { orderDetails, formatPrice };
   }
-  
-  h1 {
-    color: #4caf50;
-  }
-  
-  .address {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin: 1rem 0;
-  }
-  
-  .email-message {
-    background-color: #dff0d8;
-    color: #3c763d;
-    padding: 1rem;
-    margin-top: 1rem;
-    border-radius: 8px;
-  }
-  
-  .home-button {
-    display: inline-block;
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #4caf50;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .home-button:hover {
-    background-color: #388e3c;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.order-confirmation {
+  text-align: center;
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #4caf50;
+}
+
+.order-summary {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 2rem;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.order-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+}
+
+.price {
+  font-weight: bold;
+}
+
+.home-button {
+  display: inline-block;
+  margin-top: 2rem;
+  background-color: #2c7a2c;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 8px;
+}
+</style>

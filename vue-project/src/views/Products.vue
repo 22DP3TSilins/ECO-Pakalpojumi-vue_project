@@ -25,16 +25,14 @@
       <!-- Filter by eco rating -->
       <div class="filter-group">
         <h2>Filter by Eco Rating</h2>
-        <transition name="dropdown">
-          <select v-model="selectedRating" @change="filterByRating">
-            <option value="All">All Ratings</option>
-            <option value="5">★★★★★</option>
-            <option value="4">★★★★☆</option>
-            <option value="3">★★★☆☆</option>
-            <option value="2">★★☆☆☆</option>
-            <option value="1">★☆☆☆☆</option>
-          </select>
-        </transition>
+        <select v-model="selectedRating" @change="filterByRating">
+          <option value="All">All Ratings</option>
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
       </div>
     </div>
 
@@ -47,6 +45,7 @@
         :price="product.price"
         :image="product.image"
         :description="product.description"
+        @add-to-cart="addToCart"
       />
     </transition-group>
   </section>
@@ -83,7 +82,10 @@ export default {
       this.activeFilter = type;
     },
     filterByPrice() {},
-    filterByRating() {}
+    filterByRating() {},
+    addToCart(product) {
+      this.$emit('add-to-cart', product);
+    }
   }
 };
 </script>
@@ -153,15 +155,6 @@ select:hover {
 
 .price-slider:hover {
   transform: scale(1.05);
-}
-
-/* Dropdown animation */
-.dropdown-enter-active, .dropdown-leave-active {
-  transition: opacity 0.3s ease-in-out;
-}
-
-.dropdown-enter, .dropdown-leave-to {
-  opacity: 0;
 }
 
 /* Fade animation for product cards */

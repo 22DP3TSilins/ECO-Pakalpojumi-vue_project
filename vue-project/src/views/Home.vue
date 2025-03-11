@@ -30,5 +30,16 @@ p {
   border-radius: 8px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
+.dark-mode .page {
+  background-color: #3a3a3a;
+  color: #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+.dark-mode h1 {
+  font-size: 2.5rem;
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+}
 </style>
 

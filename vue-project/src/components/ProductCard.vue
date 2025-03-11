@@ -40,11 +40,13 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  background: white;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .product-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .product-image {
@@ -52,11 +54,21 @@ export default {
   height: auto;
   border-radius: 8px;
   margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.1);
 }
 
 h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.product-card:hover h2 {
+  color: #2c7a2c;
 }
 
 .price {
@@ -84,12 +96,13 @@ h2 {
   font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
   width: 100%;
 }
 
 .buy-button:hover {
   background-color: #1f5c1f;
   box-shadow: 0 0 15px rgba(44, 122, 44, 0.6);
+  transform: scale(1.05);
 }
 </style>

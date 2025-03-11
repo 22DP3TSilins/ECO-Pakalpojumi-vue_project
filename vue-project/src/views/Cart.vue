@@ -1,16 +1,18 @@
 <template>
   <section class="cart">
     <h1>Your Cart</h1>
+
     <div v-if="cart.length === 0">
       <p>Your cart is empty.</p>
     </div>
+
     <div v-else>
       <div v-for="(item, index) in cart" :key="index" class="cart-item">
         <img :src="item.image" :alt="item.name" class="cart-image" />
         <div class="cart-details">
           <h2>{{ item.name }}</h2>
           <p class="price">{{ formatPrice(item.price * item.quantity) }}</p>
-          
+
           <!-- Quantity Controls -->
           <div class="quantity-controls">
             <button @click="decreaseQuantity(index)">➖</button>
@@ -29,7 +31,7 @@
 
       <!-- Clear Cart & Checkout Buttons -->
       <div class="cart-actions">
-        <button class="clear-cart-button" @click="clearCart">🗑️ Clear Cart</button>
+        <button class="clear-cart-button" @click="$emit('clear-cart')">🗑️ Clear Cart</button>
         <button class="checkout-button" @click="proceedToCheckout">Proceed to Checkout</button>
       </div>
     </div>
@@ -41,7 +43,7 @@ export default {
   props: ['cart'],
   computed: {
     totalPrice() {
-      return this.cart.reduce((sum, item) => sum + parseFloat(item.price.replace('$', '')) * item.quantity, 0);
+      return this.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
     }
   },
   methods: {
@@ -60,9 +62,6 @@ export default {
     },
     proceedToCheckout() {
       this.$router.push('/checkout');
-    },
-    clearCart() {
-      this.$emit('clear-cart'); // Emits event to clear the cart
     }
   }
 };
@@ -139,6 +138,22 @@ export default {
 
 .clear-cart-button:hover {
   background-color: darkred;
+}
+
+.cart-actions button {
+  background-color: #2c7a2c;
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cart-actions button:hover {
+  background-color: #1f5c1f;
+  transform: scale(1.05);
 }
 
 .checkout-button {

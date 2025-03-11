@@ -1,68 +1,77 @@
 <template>
   <section class="cart">
-    <h1>Your Cart</h1>
+    <h1>🛒 Your Shopping Cart</h1>
 
     <div v-if="cart.length === 0">
       <p>Your cart is empty.</p>
+      <router-link to="/products" class="shop-button">🛍️ Continue Shopping</router-link>
     </div>
 
     <div v-else>
       <div v-for="(item, index) in cart" :key="index" class="cart-item">
         <img :src="item.image" :alt="item.name" class="cart-image" />
         <div class="cart-details">
-          <h2>{{ item.name }}</h2>
+          <h3>{{ item.name }}</h3>
           <p class="price">{{ formatPrice(item.price * item.quantity) }}</p>
-
+          
           <!-- Quantity Controls -->
           <div class="quantity-controls">
             <button @click="decreaseQuantity(index)">➖</button>
             <span>{{ item.quantity }}</span>
             <button @click="increaseQuantity(index)">➕</button>
           </div>
-
-          <button class="remove-button" @click="$emit('remove-from-cart', index)">Remove</button>
         </div>
+        <button @click="removeFromCart(index)" class="remove-button">🗑️ Remove</button>
       </div>
 
-      <!-- Total Price Section -->
-      <div class="cart-total">
-        <h2>Total: {{ formatPrice(totalPrice) }}</h2>
-      </div>
-
-      <!-- Clear Cart & Checkout Buttons -->
-      <div class="cart-actions">
-        <button class="clear-cart-button" @click="$emit('clear-cart')">🗑️ Clear Cart</button>
-        <button class="checkout-button" @click="proceedToCheckout">Proceed to Checkout</button>
-      </div>
+      <h2>Total: {{ formatPrice(totalPrice) }}</h2>
+      <router-link to="/checkout" class="checkout-button">✅ Proceed to Checkout</router-link>
     </div>
   </section>
 </template>
 
 <script>
+import { ref, computed, onMounted } from 'vue';
+
 export default {
-  props: ['cart'],
-  computed: {
-    totalPrice() {
-      return this.cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
-    }
-  },
-  methods: {
-    increaseQuantity(index) {
-      this.cart[index].quantity++;
-    },
-    decreaseQuantity(index) {
-      if (this.cart[index].quantity > 1) {
-        this.cart[index].quantity--;
-      } else {
-        this.$emit('remove-from-cart', index);
+  setup() {
+    const cart = ref([]);
+
+    onMounted(() => {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        cart.value = JSON.parse(savedCart);
       }
-    },
-    formatPrice(price) {
-      return `$${parseFloat(price).toFixed(2)}`;
-    },
-    proceedToCheckout() {
-      this.$router.push('/checkout');
-    }
+    });
+
+    const formatPrice = (price) => `$${parseFloat(price).toFixed(2)}`;
+
+    const increaseQuantity = (index) => {
+      cart.value[index].quantity++;
+      updateCart();
+    };
+
+    const decreaseQuantity = (index) => {
+      if (cart.value[index].quantity > 1) {
+        cart.value[index].quantity--;
+        updateCart();
+      }
+    };
+
+    const removeFromCart = (index) => {
+      cart.value.splice(index, 1);
+      updateCart();
+    };
+
+    const updateCart = () => {
+      localStorage.setItem("cart", JSON.stringify(cart.value));
+    };
+
+    const totalPrice = computed(() => {
+      return cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    });
+
+    return { cart, formatPrice, increaseQuantity, decreaseQuantity, removeFromCart, totalPrice };
   }
 };
 </script>
@@ -76,9 +85,11 @@ export default {
 .cart-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  background: #f4f4f4;
   padding: 1rem;
-  border-bottom: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 1rem;
 }
 
 .cart-image {
@@ -94,87 +105,70 @@ export default {
 
 .price {
   font-weight: bold;
+  margin-top: 0.5rem;
 }
 
-/* Quantity Controls */
 .quantity-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
 .quantity-controls button {
-  background-color: #4caf50;
+  background-color: #ff9800;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 5px;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .quantity-controls button:hover {
-  background-color: #388e3c;
+  background-color: #e68900;
 }
 
-/* Clear Cart & Checkout Buttons */
-.cart-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-  justify-content: center;
-}
-
-.clear-cart-button {
+.remove-button {
   background-color: red;
   color: white;
   border: none;
-  padding: 1rem;
-  font-size: 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
 }
 
-.clear-cart-button:hover {
+.remove-button:hover {
   background-color: darkred;
 }
 
-.cart-actions button {
+.checkout-button {
+  display: inline-block;
+  margin-top: 1.5rem;
   background-color: #2c7a2c;
   color: white;
-  border: none;
-  padding: 1rem;
-  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.cart-actions button:hover {
-  background-color: #1f5c1f;
-  transform: scale(1.05);
-}
-
-.checkout-button {
-  background-color: #ffa500;
-  color: white;
-  border: none;
-  padding: 1rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 1.2rem;
 }
 
 .checkout-button:hover {
-  background-color: #ff8c00;
+  background-color: #1f5c1f;
 }
 
-/* Total Price */
-.cart-total {
-  margin-top: 2rem;
-  font-size: 1.5rem;
-  font-weight: bold;
+.shop-button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  background-color: #ff9800;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+}
+
+.shop-button:hover {
+  background-color: #e68900;
 }
 </style>

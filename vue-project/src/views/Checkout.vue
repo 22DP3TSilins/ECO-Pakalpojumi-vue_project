@@ -4,7 +4,7 @@
 
     <!-- Order Summary -->
     <div class="order-summary" v-if="cart.length > 0">
-      <h2>Order Summary</h2>
+      <h2>🛒 Order Summary</h2>
       <div v-for="(item, index) in cart" :key="index" class="order-item">
         <img :src="item.image" :alt="item.name" class="order-image" />
         <div class="order-details">
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Checkout Form -->
-    <form @submit.prevent="submitOrder">
+    <form @submit.prevent="processPayment">
       <label for="name">Full Name:</label>
       <input type="text" id="name" v-model="name" required />
 
@@ -27,27 +27,21 @@
       <label for="address">Shipping Address:</label>
       <textarea id="address" v-model="address" required></textarea>
 
-      <!-- Payment Section -->
-      <label for="payment-method">Payment Method:</label>
-      <select id="payment-method" v-model="paymentMethod" required>
-        <option value="" disabled>Select a payment method</option>
-        <option value="credit_card">💳 Credit Card</option>
+      <label for="payment">Payment Method:</label>
+      <select id="payment" v-model="paymentMethod" required>
+        <option value="stripe">💳 Credit Card (Stripe)</option>
         <option value="paypal">🅿️ PayPal</option>
-        <option value="cash_on_delivery">💵 Cash on Delivery</option>
       </select>
 
-      <button type="submit" class="checkout-button">Place Order</button>
+      <button type="submit" class="checkout-button">Proceed to Payment</button>
     </form>
-
-    <!-- Email Sending Confirmation -->
-    <p v-if="emailSent" class="success-message">✅ Confirmation email sent to {{ email }}!</p>
   </section>
 </template>
 
 <script>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import emailjs from 'emailjs-com';
+import { loadStripe } from '@stripe/stripe-js';
 
 export default {
   props: ['cart'],
@@ -56,8 +50,7 @@ export default {
     const name = ref('');
     const email = ref('');
     const address = ref('');
-    const paymentMethod = ref('');
-    const emailSent = ref(false);
+    const paymentMethod = ref('stripe');
 
     const totalPrice = computed(() => {
       return props.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -65,57 +58,38 @@ export default {
 
     const formatPrice = (price) => `$${parseFloat(price).toFixed(2)}`;
 
-    const submitOrder = () => {
-      if (!name.value || !email.value || !address.value || !paymentMethod.value) {
+    const processPayment = async () => {
+      if (!name.value || !email.value || !address.value) {
         alert("Please fill in all fields.");
         return;
       }
 
-      const orderData = {
-        name: name.value,
-        email: email.value,
-        address: address.value,
-        paymentMethod: paymentMethod.value,
-        total: totalPrice.value,
-        items: props.cart
-      };
-
-      // Save order for order history
-      const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
-      orderHistory.push(orderData);
-      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-
-      // Send email confirmation
-      sendEmail(orderData);
-
-      // Clear cart
-      localStorage.removeItem('cart');
-
-      // Redirect to confirmation page
-      router.push('/order-confirmation');
+      if (paymentMethod.value === 'stripe') {
+        await processStripePayment();
+      } else {
+        alert("PayPal integration coming soon!");
+      }
     };
 
-    const sendEmail = (orderData) => {
-      emailjs.send(
-        "service_ijx4g5m", // Replace with your EmailJS Service ID
-        "template_awnajve", // Replace with your EmailJS Template ID
-        {
-          user_name: orderData.name,
-          user_email: orderData.email,  // 🔹 This should be dynamic
-          order_details: JSON.stringify(orderData.items, null, 2),
-          order_total: orderData.total
-        },
-        "bxC-z6YylRqALmHzV" // Replace with your EmailJS Public Key
-      )
-      .then(() => {
-        emailSent.value = true;
-      })
-      .catch(error => {
-        console.error("Error sending email:", error);
+    const processStripePayment = async () => {
+      const stripe = await loadStripe("pk_test_51R1QqOPwDi1ty0iBo5TDLKKYQgTViMs2eBFaQz5MXisUL4ZPNqQ55E5G7SJ4IDyZ1k2KKjIhBwvNZfukk4SI31ZA00W1hil1jT"); // Replace with your Stripe Publishable Key
+
+      const response = await fetch("http://localhost:5000/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: props.cart, total: totalPrice.value, email: email.value })
       });
+
+      const session = await response.json();
+
+      if (session.id) {
+        stripe.redirectToCheckout({ sessionId: session.id });
+      } else {
+        alert("Payment failed, please try again.");
+      }
     };
 
-    return { name, email, address, paymentMethod, submitOrder, totalPrice, formatPrice, emailSent };
+    return { name, email, address, paymentMethod, processPayment, totalPrice, formatPrice };
   }
 };
 </script>
@@ -124,44 +98,6 @@ export default {
 .checkout {
   text-align: center;
   padding: 2rem;
-}
-
-/* Success Message */
-.success-message {
-  color: #2c7a2c;
-  font-weight: bold;
-  margin-top: 1rem;
-}
-
-/* Order Summary */
-.order-summary {
-  background-color: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 10px;
-  margin-bottom: 2rem;
-}
-
-.order-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
-}
-
-.order-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-}
-
-.order-details {
-  flex-grow: 1;
-  text-align: left;
-}
-
-.price {
-  font-weight: bold;
 }
 
 /* Checkout Form */
@@ -185,10 +121,6 @@ select {
   border: 1px solid #ddd;
   border-radius: 5px;
   width: 100%;
-}
-
-textarea {
-  height: 100px;
 }
 
 .checkout-button {

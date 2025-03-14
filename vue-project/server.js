@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import Stripe from "stripe";
 
-const stripe = new Stripe("YOUR_STRIPE_SECRET_KEY"); // Replace with your actual secret key
+const stripe = new Stripe("sk_test_51R1QqOPwDi1ty0iBLpSWfS1dXihAElRpHuy1aDAxyxleMIgKChXomgQFed0QNtNR4aSl2ancaLxtJeMr89aTogBZ001HbOMTXA"); // Replace with your actual secret key
 
 const app = express();
 app.use(cors());

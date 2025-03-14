@@ -62,10 +62,10 @@ export default {
       maxPrice: 50,
       selectedRating: 'All',
       products: [
-        { name: 'Reusable Water Bottle', price: 15, image: '/assets/bottle.jfif', description: 'Durable, BPA-free bottle.', type: 'Bottle', rating: 5 },
-        { name: 'Bamboo Toothbrush', price: 5, image: '/assets/toothbrush.jfif', description: 'Sustainable toothbrush.', type: 'Toothbrush', rating: 4 },
-        { name: 'Organic Cotton Bag', price: 12, image: '/assets/bag.jfif', description: 'Reusable shopping bag.', type: 'Bag', rating: 3 },
-        { name: 'Glass Water Bottle', price: 20, image: '/assets/glass-bottle.jfif', description: 'Eco-friendly glass bottle.', type: 'Bottle', rating: 5 }
+        { name: 'Reusable Water Bottle', price: 1, image: '/assets/bottle.jfif', description: 'Durable, BPA-free bottle.', type: 'Bottle', rating: 5 },
+        { name: 'Bamboo Toothbrush', price: 1, image: '/assets/toothbrush.jfif', description: 'Sustainable toothbrush.', type: 'Toothbrush', rating: 4 },
+        { name: 'Organic Cotton Bag', price: 1, image: '/assets/bag.jfif', description: 'Reusable shopping bag.', type: 'Bag', rating: 3 },
+        { name: 'Glass Water Bottle', price: 1, image: '/assets/glass-bottle.jfif', description: 'Eco-friendly glass bottle.', type: 'Bottle', rating: 5 }
       ]
     };
   },
